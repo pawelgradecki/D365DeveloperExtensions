@@ -206,7 +206,7 @@ namespace D365DeveloperExtensions
 
         private static void ConnectToCrm()
         {
-            CrmLoginForm ctrl = new CrmLoginForm(false, "intellinsense");
+            CrmLoginForm ctrl = new CrmLoginForm(false);
             ctrl.ConnectionToCrmCompleted += CtrlOnConnectionToCrmCompleted;
             ctrl.ShowDialog();
         }

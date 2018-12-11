@@ -52,6 +52,9 @@ namespace D365DeveloperExtensions.Core.Connection
         public event EventHandler ConnectionToCrmCompleted;
         #endregion
 
+        public CrmLoginForm(bool autoLogin) : this(autoLogin, null)
+        {
+        }
 
         public CrmLoginForm(bool autoLogin, string profileName)
         {
@@ -86,7 +89,10 @@ namespace D365DeveloperExtensions.Core.Connection
             // set this option to true. 
             _mgr.UseUserLocalDirectoryForConfigStore = true;
 
-            _mgr.ProfileName = _profileName;
+            if(_profileName != null)
+            {
+                _mgr.ProfileName = _profileName;
+            }
 
             _mgr.ClientId = "2ad88395-b77d-4561-9441-d0e40824f9bc";
             _mgr.RedirectUri = new Uri("app://5d3e90d6-aa8e-48a8-8f2c-58b45cc67315");
