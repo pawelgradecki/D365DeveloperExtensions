@@ -44,7 +44,7 @@ namespace D365DeveloperExtensions
     /// </para>
     /// </remarks>
     [PackageRegistration(UseManagedResourcesOnly = true)]
-    [InstalledProductRegistration("#110", "#112", "2.0.18102.0258", IconResourceID = 400)] // Info on this package for Help/About
+    [InstalledProductRegistration("#110", "#112", "2.0.18345.1857", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideToolWindow(typeof(PluginDeployerHost))]
     [ProvideToolWindow(typeof(WebResourceDeployerHost))]
@@ -206,7 +206,7 @@ namespace D365DeveloperExtensions
 
         private static void ConnectToCrm()
         {
-            CrmLoginForm ctrl = new CrmLoginForm(false);
+            CrmLoginForm ctrl = new CrmLoginForm(false, "intellinsense");
             ctrl.ConnectionToCrmCompleted += CtrlOnConnectionToCrmCompleted;
             ctrl.ShowDialog();
         }

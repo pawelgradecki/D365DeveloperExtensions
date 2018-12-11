@@ -468,7 +468,7 @@ namespace D365DeveloperExtensions.Core.Connection
             {
                 StatusBar.SetStatusBarValue(Resource.StatusBarMessageConnecting, vsStatusAnimation.vsStatusAnimationGeneral);
 
-                CrmLoginForm ctrl = new CrmLoginForm(_autoLogin);
+                CrmLoginForm ctrl = new CrmLoginForm(_autoLogin, SelectedProfile);
                 ctrl.ConnectionToCrmCompleted += ConnectionToCrmCompleted;
                 bool? result = ctrl.ShowDialog();
 

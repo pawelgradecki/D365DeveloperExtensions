@@ -34,6 +34,7 @@ namespace D365DeveloperExtensions.Core.Connection
         private bool _resetUiFlag;
 
         private readonly bool _autoLogin;
+        private readonly string _profileName;
         #endregion
 
         #region Properties
@@ -52,7 +53,7 @@ namespace D365DeveloperExtensions.Core.Connection
         #endregion
 
 
-        public CrmLoginForm(bool autoLogin)
+        public CrmLoginForm(bool autoLogin, string profileName)
         {
             InitializeComponent();
             //// Should be used for testing only.
@@ -62,6 +63,7 @@ namespace D365DeveloperExtensions.Core.Connection
             //    return true;
             //};
             _autoLogin = autoLogin;
+            _profileName = profileName;
             EnableXrmToolingLogging();
         }
 
@@ -83,6 +85,8 @@ namespace D365DeveloperExtensions.Core.Connection
             // if you are using an unmanaged client, excel for example, and need to store the config in the users local directory
             // set this option to true. 
             _mgr.UseUserLocalDirectoryForConfigStore = true;
+
+            _mgr.ProfileName = _profileName;
 
             _mgr.ClientId = "2ad88395-b77d-4561-9441-d0e40824f9bc";
             _mgr.RedirectUri = new Uri("app://5d3e90d6-aa8e-48a8-8f2c-58b45cc67315");
