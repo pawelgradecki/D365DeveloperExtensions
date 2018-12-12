@@ -18,6 +18,8 @@ using SolutionPackager;
 using System;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using TemplateWizards;
 using WebResourceDeployer;
@@ -43,8 +45,8 @@ namespace D365DeveloperExtensions
     /// To get loaded into VS, the package must be referred by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
     /// </para>
     /// </remarks>
-    [PackageRegistration(UseManagedResourcesOnly = true)]
-    [InstalledProductRegistration("#110", "#112", "2.0.18345.1857", IconResourceID = 400)] // Info on this package for Help/About
+    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
+    [InstalledProductRegistration("#110", "#112", "2.0.18346.0821", IconResourceID = 400)] // Info on this package for Help/About
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideToolWindow(typeof(PluginDeployerHost))]
     [ProvideToolWindow(typeof(WebResourceDeployerHost))]
@@ -52,7 +54,7 @@ namespace D365DeveloperExtensions
     [ProvideToolWindow(typeof(PluginTraceViewerHost))]
 
     [Guid(PackageGuids.GuidD365DeveloperExtensionsPkgString)]
-    [ProvideAutoLoad("ADFC4E64-0397-11D1-9F4E-00A0C911004F")]
+    [ProvideAutoLoad("ADFC4E64-0397-11D1-9F4E-00A0C911004F", PackageAutoLoadFlags.BackgroundLoad)]
 
     //User Settings - Sections
     //TODO: find way to replace strings
@@ -62,20 +64,22 @@ namespace D365DeveloperExtensions
     [ProvideOptionPage(typeof(UserOptionsGridIntellisense), "D365 DevEx", "Intellisense", 0, 0, true)]
     [ProvideOptionPage(typeof(UserOptionsGridTemplates), "D365 DevEx", "Templates", 0, 0, true)]
 
-    public sealed class D365DeveloperExtensionsPackage : Package
+    public sealed class D365DeveloperExtensionsPackage : AsyncPackage
     {
         private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
         private static DTE _dte;
         private IVsSolution _vsSolution;
         private IVsSolutionEvents _vsSolutionEvents;
 
-        protected override void Initialize()
+        protected async override System.Threading.Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            base.Initialize();
+            await base.InitializeAsync(cancellationToken, progress);
 
-            _dte = GetGlobalService(typeof(DTE)) as DTE;
+            _dte = await GetServiceAsync(typeof(DTE)) as DTE;
             if (_dte == null)
+            {
                 return;
+            }
 
             StartupTasks.Run(_dte);
 
@@ -86,8 +90,14 @@ namespace D365DeveloperExtensions
 
             BindSolutionEvents(events);
 
-            if (!(GetService(typeof(IMenuCommandService)) is OleMenuCommandService mcs))
+            var menuService = await GetServiceAsync(typeof(IMenuCommandService));
+
+            if (!(menuService is OleMenuCommandService))
+            {
                 return;
+            }
+
+            var mcs = (OleMenuCommandService)menuService;
 
             //Plug-in Deployer
             CommandID pdWindowCommandId = new CommandID(PackageGuids.GuidD365DevExCmdSet, PackageIds.CmdidPluginDeployerWindow);
@@ -241,10 +251,10 @@ namespace D365DeveloperExtensions
             ErrorHandler.ThrowOnFailure(windowFrame.Show());
         }
 
-        private void AdviseSolutionEvents()
+        private async void AdviseSolutionEvents()
         {
             _vsSolutionEvents = new VsSolutionEvents(_dte, this);
-            _vsSolution = (IVsSolution)ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution));
+            _vsSolution = (IVsSolution) await this.GetServiceAsync(typeof(SVsSolution));
             _vsSolution.AdviseSolutionEvents(_vsSolutionEvents, out uint solutionEventsCookie);
         }
 
